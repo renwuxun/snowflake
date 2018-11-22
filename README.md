@@ -1,5 +1,5 @@
 ## Snowflake ID generator
-
+生成雪花id，非线程安全
 #### 第一种：snowflake_generator_s
 ttttttttttttttttttttttttttttttttttttttttttmmmmmmmmmmssssssssssss
 最多1024个进程，一个毫秒容量为4096
