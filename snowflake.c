@@ -23,7 +23,7 @@ int snowflake2_init(struct snowflake2_s* gen, uint64_t gpid) {
     return 0;
 }
 
-static uint64_t now_ms() {
+static inline uint64_t now_ms() {
     struct timeval t;
     gettimeofday(&t, 0);
     return (uint64_t)(t.tv_sec*1000 + t.tv_usec/1000);
@@ -32,7 +32,7 @@ static uint64_t now_ms() {
 uint64_t snowflake_nts_gen(struct snowflake_s* gen) {
     uint64_t nowms = now_ms() - SNOWFLAKE_EPOCH;
 
-    if ((gen->statems >> 22) != nowms) {
+    if ((gen->statems >> 22) < nowms) {
         gen->statems = nowms<<22;
     }
 
@@ -45,7 +45,7 @@ uint64_t snowflake_nts_gen(struct snowflake_s* gen) {
 uint64_t snowflake2_nts_gen(struct snowflake2_s* gen) {
     uint64_t nowms = now_ms() - SNOWFLAKE_EPOCH;
 
-    if ((gen->statems >> 22) != nowms) {
+    if ((gen->statems >> 22) < nowms) {
         gen->statems = nowms<<22;
     }
 
@@ -58,7 +58,7 @@ uint64_t snowflake2_nts_gen(struct snowflake2_s* gen) {
 uint64_t snowflake_gen(struct snowflake_s* gen) {
     uint64_t nowms = now_ms() - SNOWFLAKE_EPOCH;
 
-    if ((gen->statems >> 22) != nowms) {
+    if ((gen->statems >> 22) < nowms) {
         gen->statems = nowms<<22;
     }
 
@@ -71,7 +71,7 @@ uint64_t snowflake_gen(struct snowflake_s* gen) {
 uint64_t snowflake2_gen(struct snowflake2_s* gen) {
     uint64_t nowms = now_ms() - SNOWFLAKE_EPOCH;
 
-    if ((gen->statems >> 22) != nowms) {
+    if ((gen->statems >> 22) < nowms) {
         gen->statems = nowms<<22;
     }
 
