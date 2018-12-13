@@ -37,7 +37,7 @@ uint64_t snowflake_nts_gen(struct snowflake_s *gen) {
     }
 
     gen->statems++;
-    //gen->statems = gen->statems &~ 0x3fc000; // 清理gpid的位置
+    //gen->statems = gen->statems &~ 0xffc0000000000000; // 清理gpid的位置
 
     return gen->statems | gen->gpid << 56;
 }
@@ -50,7 +50,7 @@ uint64_t snowflake2_nts_gen(struct snowflake2_s *gen) {
     }
 
     gen->statems++;
-    //gen->statems = gen->statems &~ 0x3fc000; // 清理gpid的位置
+    //gen->statems = gen->statems &~ 0xff00000000000000; // 清理gpid的位置
 
     return gen->statems | gen->gpid << 56;
 }
@@ -63,7 +63,7 @@ uint64_t snowflake_gen(struct snowflake_s *gen) {
     }
 
     __sync_fetch_and_add(&gen->statems, 1);
-    //gen->statems = gen->statems &~ 0x3fc000; // 清理gpid的位置
+    //gen->statems = gen->statems &~ 0xffc0000000000000; // 清理gpid的位置
 
     return gen->statems | gen->gpid << 56;
 }
@@ -76,7 +76,7 @@ uint64_t snowflake2_gen(struct snowflake2_s *gen) {
     }
 
     __sync_fetch_and_add(&gen->statems, 1);
-    //gen->statems = gen->statems &~ 0x3fc000; // 清理gpid的位置
+    //gen->statems = gen->statems &~ 0xff00000000000000; // 清理gpid的位置
 
     return gen->statems | gen->gpid << 56;
 }
