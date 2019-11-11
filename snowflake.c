@@ -29,54 +29,54 @@ static inline uint64_t now_ms() {
     return (uint64_t) (t.tv_sec * 1000 + t.tv_usec / 1000);
 }
 
-uint64_t snowflake_nts_gen(struct snowflake_s *gen) {
-    uint64_t nowms = now_ms() - SNOWFLAKE_EPOCH;
+/////////////////////////////////////////////////////////////////////
+uint64_t snowflake_nts_gen(struct snowflake_s *sf) {
+    uint64_t statems = (now_ms() - SNOWFLAKE_EPOCH) << 12;
 
-    if ((gen->statems >> 12) < nowms) {
-        gen->statems = nowms << 12;
+    if (sf->statems < statems) {
+        sf->statems = statems-1;
     }
 
-    gen->statems++;
-    //gen->statems = gen->statems &~ 0xffc0000000000000; // 清理gpid的位置
+    sf->statems++;
 
-    return gen->statems | gen->gpid << 56;
+    return (sf->statems<<10 | sf->gpid);
 }
 
-uint64_t snowflake2_nts_gen(struct snowflake2_s *gen) {
-    uint64_t nowms = now_ms() - SNOWFLAKE_EPOCH;
+uint64_t snowflake2_nts_gen(struct snowflake2_s *sf) {
+    uint64_t statems = (now_ms() - SNOWFLAKE_EPOCH) << 14;
 
-    if ((gen->statems >> 14) < nowms) {
-        gen->statems = nowms << 14;
+    if (sf->statems < statems) {
+        sf->statems = statems-1;
     }
 
-    gen->statems++;
-    //gen->statems = gen->statems &~ 0xff00000000000000; // 清理gpid的位置
+    sf->statems++;
 
-    return gen->statems | gen->gpid << 56;
+    return (sf->statems<<8 | sf->gpid);
 }
 
-uint64_t snowflake_gen(struct snowflake_s *gen) {
-    uint64_t nowms = now_ms() - SNOWFLAKE_EPOCH;
+/////////////////////////////////////////////////////////////////////////
+uint64_t snowflake_gen(struct snowflake_s *sf) {
+    uint64_t oldstatems = sf->statems;
+    uint64_t newstatems = (now_ms() - SNOWFLAKE_EPOCH) << 12;
 
-    if ((gen->statems >> 12) < nowms) {
-        gen->statems = nowms << 12;
+    if (oldstatems < newstatems) {
+        __sync_bool_compare_and_swap(&sf->statems, oldstatems, newstatems-1);
     }
 
-    __sync_fetch_and_add(&gen->statems, 1);
-    //gen->statems = gen->statems &~ 0xffc0000000000000; // 清理gpid的位置
+    uint64_t statms = __sync_add_and_fetch(&sf->statems, 1);
 
-    return gen->statems | gen->gpid << 56;
+    return (statms<<10 | sf->gpid);
 }
 
-uint64_t snowflake2_gen(struct snowflake2_s *gen) {
-    uint64_t nowms = now_ms() - SNOWFLAKE_EPOCH;
+uint64_t snowflake2_gen(struct snowflake2_s *sf) {
+    uint64_t oldstatems = sf->statems;
+    uint64_t newstatems = (now_ms() - SNOWFLAKE_EPOCH) << 14;
 
-    if ((gen->statems >> 14) < nowms) {
-        gen->statems = nowms << 14;
+    if (oldstatems < newstatems) {
+        __sync_bool_compare_and_swap(&sf->statems, oldstatems, newstatems-1);
     }
 
-    __sync_fetch_and_add(&gen->statems, 1);
-    //gen->statems = gen->statems &~ 0xff00000000000000; // 清理gpid的位置
+    uint64_t statms = __sync_add_and_fetch(&sf->statems, 1);
 
-    return gen->statems | gen->gpid << 56;
+    return (statms<<8 | sf->gpid);
 }
