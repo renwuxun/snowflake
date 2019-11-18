@@ -1,26 +1,14 @@
 #include "snowflake.h"
 
 
-int snowflake_init(struct snowflake_s *gen, uint64_t gpid) {
-    if (gpid > 1023) {
-        return __LINE__;
-    }
-
-    gen->gpid = gpid;
+void snowflake_init(struct snowflake_s *gen, uint64_t gpid) {
+    gen->gpid = gpid & 1023;
     gen->statems = 0;
-
-    return 0;
 }
 
-int snowflake2_init(struct snowflake2_s *gen, uint64_t gpid) {
-    if (gpid > 255) {
-        return __LINE__;
-    }
-
-    gen->gpid = gpid;
+void snowflake2_init(struct snowflake2_s *gen, uint64_t gpid) {
+    gen->gpid = gpid & 0xff;
     gen->statems = 0;
-
-    return 0;
 }
 
 static inline uint64_t now_ms() {
@@ -79,4 +67,17 @@ uint64_t snowflake2_gen(struct snowflake2_s *sf) {
     uint64_t statms = __sync_add_and_fetch(&sf->statems, 1);
 
     return (statms<<8 | sf->gpid);
+}
+
+/////////////////////////////////////////////////////////////
+///id32
+/////////////////////////////////////////////////////////////
+void id32_init(struct id32* id, uint32_t gpid) {
+    id->cnt = 0;
+    id->gpid = gpid & 0xff;
+}
+
+uint32_t id32_gen(struct id32* id) {
+    uint32_t cnt = __sync_add_and_fetch(&id->cnt, 1);
+    return (cnt<<8) | id->gpid;
 }
